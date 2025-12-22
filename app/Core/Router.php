@@ -23,7 +23,20 @@ class Router
 
         }
 
+        if ($method === 'POST' && $uri === '/register') {
+            $controller = new \App\Controllers\UserController();
+            $data = json_decode(file_get_contents('php://input'), true);
+            $controller->register($data);
+            return;
+        }
 
+        if ($method === 'POST' && $uri === '/login') {
+            $controller = new \App\Controllers\UserController();
+            $data = json_decode(file_get_contents('php://input'), true);
+            $controller->login($data);
+            return;
+        }
+        
         Response::error('Endpoint not found', 404);
     }
 }
