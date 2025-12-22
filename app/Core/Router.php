@@ -18,6 +18,12 @@ class Router
             return;
         }
 
+        if ($method === 'GET' && $uri === '/users') {
+            $controller = new \App\Controllers\UserController();
+
+        }
+
+
         Response::error('Endpoint not found', 404);
     }
 }
