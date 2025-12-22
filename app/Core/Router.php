@@ -1,40 +1,28 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+declare(strict_types=1);
 
-use Dotenv\Dotenv;
+namespace App\Core;
 
-echo "=======================================\n";
-echo "Library API Database Migrations\n";
-echo "=======================================\n\n";
+class Router
+{
+    public function dispatch(): void
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Загружаем .env переменные
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+        // Тестовый эндпоинт
+        if ($method === 'GET' && $uri === '/ping') {
+            echo json_encode([
+                'status' => 'ok'
+            ]);
+            return;
+        }
 
-// Подключаем все файлы миграций из папки migrations
-$migrationFiles = glob(__DIR__ . '/migrations/*.php');
-sort($migrationFiles); // Сортируем по порядку
-
-if (empty($migrationFiles)) {
-    echo "No migration files found!\n";
-    exit(1);
-}
-
-echo "Found " . count($migrationFiles) . " migration file(s)\n\n";
-
-foreach ($migrationFiles as $file) {
-    echo "Running: " . basename($file) . "... ";
-    
-    try {
-        require_once $file;
-        echo "✓ SUCCESS\n";
-    } catch (Exception $e) {
-        echo "✗ ERROR: " . $e->getMessage() . "\n";
-        exit(1);
+        // Если маршрут не найден
+        http_response_code(404);
+        echo json_encode([
+            'error' => 'Endpoint not found'
+        ]);
     }
 }
-
-echo "\n=======================================\n";
-echo "All migrations completed successfully!\n";
-echo "=======================================\n";
