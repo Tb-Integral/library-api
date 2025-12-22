@@ -1,0 +1,60 @@
+# Dependencies
+/vendor/
+/composer.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Development tools
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+storage/logs/
+
+# Runtime data
+storage/framework/cache/
+storage/framework/views/
+storage/framework/sessions/
+
+# Testing
+.phpunit.result.cache
+/coverage/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP
+.php-cs-fixer.cache
+
+# Composer
+composer.phar
+
+# Local configuration
+config/local.php
+
+# Uploaded files
+/public/uploads/
+/storage/app/public/
+
+# SQLite
+*.sqlite
+*.sqlite3
+
+# IDE
+.project
+.buildpath
+.settings/
