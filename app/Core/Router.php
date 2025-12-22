@@ -31,12 +31,11 @@ class Router
         }
 
         if ($method === 'POST' && $uri === '/login') {
-            $controller = new \App\Controllers\UserController();
-            $data = json_decode(file_get_contents('php://input'), true);
-            $controller->login($data);
+            (new \App\Controllers\AuthController())->login();
             return;
         }
-        
+
+
         Response::error('Endpoint not found', 404);
     }
 }
