@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Core;
+
+use App\Controllers\UserController;
 
 class Router
 {
@@ -11,18 +11,13 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'];
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-        // Тестовый эндпоинт
+        $userController = new UserController();
+
         if ($method === 'GET' && $uri === '/ping') {
-            echo json_encode([
-                'status' => 'ok'
-            ]);
+            $userController->ping();
             return;
         }
 
-        // Если маршрут не найден
-        http_response_code(404);
-        echo json_encode([
-            'error' => 'Endpoint not found'
-        ]);
+        Response::error('Endpoint not found', 404);
     }
 }
