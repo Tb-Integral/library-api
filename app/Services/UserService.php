@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Core\DB;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use PDO;
 
 class UserService
 {
@@ -66,5 +67,19 @@ class UserService
 
         $secret = $_ENV['JWT_SECRET'];
         return JWT::encode($payload, $secret, 'HS256');
+    }
+
+    public function getById(int $id): ?array
+    {
+        $pdo = DB::getInstance();
+
+        $stmt = $pdo->prepare(
+            'SELECT id, login, created_at FROM users WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
     }
 }

@@ -37,12 +37,7 @@ class Router
         }
 
         if ($method === 'GET' && $uri === '/me') {
-            try {
-                $userId = AuthMiddleware::handle();
-                Response::json(['user_id' => $userId]);
-            } catch (\Exception $e) {
-                Response::error($e->getMessage(), $e->getCode() ?: 401);
-            }
+            (new \App\Controllers\UserController())->me();
             return;
         }
 
