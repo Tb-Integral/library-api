@@ -18,13 +18,28 @@ class UserService
         $this->db = DB::getInstance();
     }
 
-    public function register(string $login, string $password): string
+    public function register(string $login, string $password, string $passwordConfirmation): string
     {
+        // Проверка подтверждения пароля
+        if ($password !== $passwordConfirmation) {
+            throw new \Exception('Passwords do not match', 400);
+        }
+
         // Проверка существующего логина
         $stmt = $this->db->prepare("SELECT id FROM users WHERE login = :login");
         $stmt->execute(['login' => $login]);
         if ($stmt->fetch()) {
-            throw new \Exception("User already exists");
+            throw new \Exception("User already exists", 409);
+        }
+
+        // Валидация сложности пароля
+        if (strlen($password) < 6) {
+            throw new \Exception("Password must be at least 6 characters", 400);
+        }
+
+        // Проверка длины логина
+        if (strlen($login) > 50) {
+            throw new \Exception("Login may not be greater than 50 characters", 400);
         }
 
         // Хешируем пароль

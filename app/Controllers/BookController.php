@@ -185,4 +185,27 @@ class BookController extends Controller
             $this->error($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function storeFromFile(): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+
+            // Проверяем загрузку файла
+            if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                $this->error('File is required', 400);
+                return;
+            }
+
+            $title = $_POST['title'] ?? 'Untitled';
+            $file = $_FILES['file'];
+
+            $book = $this->service->createBookFromFile($userId, $title, $file);
+
+            $this->success($book, 201);
+
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

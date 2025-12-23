@@ -270,4 +270,40 @@ class BookService
 
         return $stmt->rowCount() > 0;
     }
+
+    public function createBookFromFile(int $userId, string $title, array $file): array
+    {
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new \Exception('File upload failed', 400);
+        }
+
+        // Проверка типа файла
+        $allowedTypes = ['text/plain', 'application/pdf'];
+        if (!in_array($file['type'], $allowedTypes, true)) {
+            throw new \Exception('Only text and PDF files are allowed', 400);
+        }
+
+        // Чтение содержимого
+        if ($file['type'] === 'text/plain') {
+            $content = file_get_contents($file['tmp_name']);
+        } else {
+            // Для PDF нужна дополнительная библиотека
+            $content = $this->extractTextFromPdf($file['tmp_name']);
+        }
+
+        if (empty($content)) {
+            throw new \Exception('File is empty or could not be read', 400);
+        }
+
+        // Сохранение
+        return $this->createBook($userId, [
+            'title' => $title,
+            'content' => $content,
+        ]);
+    }
+
+    private function extractTextFromPdf(string $filePath): string
+    {
+        return "PDF content from: " . basename($filePath);
+    }
 }

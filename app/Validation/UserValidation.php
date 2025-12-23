@@ -10,8 +10,8 @@ class UserValidation
     {
         return [
             'login' => ['required', 'string', 'max:50'],
-            'password' => ['required', 'string', 'min:6'],
-            'password_confirmation' => ['required', 'confirmed'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password_confirmation' => ['required', 'string'],
         ];
     }
 

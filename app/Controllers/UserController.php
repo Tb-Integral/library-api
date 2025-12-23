@@ -27,14 +27,17 @@ class UserController extends Controller
 
     public function register(array $data): void
     {
-        // Валидация
         if (!$this->validator->validate($data, UserValidation::registerRules())) {
             $this->error($this->validator->getFirstError(), 422);
             return;
         }
 
         try {
-            $token = $this->service->register($data['login'], $data['password']);
+            $token = $this->service->register(
+                $data['login'],
+                $data['password'],
+                $data['password_confirmation'] ?? ''
+            );
             $this->success(['token' => $token]);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), 400);

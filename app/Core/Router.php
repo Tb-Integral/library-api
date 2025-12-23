@@ -94,16 +94,19 @@ class Router
             return;
         }
 
-        // Внешний поиск книг
         if ($method === 'GET' && $uri === '/external/books/search') {
             (new \App\Controllers\ExternalBooksController())->search();
             return;
         }
 
-        // Сохранение найденной книги
         if ($method === 'POST' && $uri === '/external/books/save') {
             $data = json_decode(file_get_contents('php://input'), true) ?? [];
             (new \App\Controllers\ExternalBooksController())->save($data);
+            return;
+        }
+
+        if ($method === 'POST' && $uri === '/books/upload') {
+            (new \App\Controllers\BookController())->storeFromFile();
             return;
         }
 
