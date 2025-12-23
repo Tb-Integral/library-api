@@ -68,4 +68,23 @@ class UserController extends Controller
             $this->error($e->getMessage(), $e->getCode() ?: 401);
         }
     }
+
+    public function index(): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+            
+            // Опциональные параметры пагинации
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $limit = max(1, min(100, (int)($_GET['limit'] ?? 20)));
+            $offset = ($page - 1) * $limit;
+            
+            $users = $this->service->getAllUsersExcept($userId, $limit, $offset);
+            
+            $this->success(['users' => $users]);
+            
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

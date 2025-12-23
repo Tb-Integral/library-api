@@ -60,15 +60,22 @@ class BookController extends Controller
     {
         try {
             $userId = AuthMiddleware::handle();
-
+            
+            // Проверка доступа
+            if (!$this->service->hasAccessToBook($id, $userId)) {
+                $this->error('Book not found', 404);
+                return;
+            }
+            
             $book = $this->service->getBookById($id, $userId);
-
+            
             if (!$book) {
                 $this->error('Book not found', 404);
                 return;
             }
-
+            
             $this->success($book);
+            
         } catch (\Exception $e) {
             $this->error($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -113,6 +120,47 @@ class BookController extends Controller
             }
             
             $this->success(['message' => 'Book deleted']);
+            
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function share(int $bookId, array $data): void
+    {
+        try {
+            $ownerId = AuthMiddleware::handle();
+            
+            if (!isset($data['user_id'])) {
+                $this->error('User ID is required', 400);
+                return;
+            }
+            
+            $guestId = (int)$data['user_id'];
+            
+            $shared = $this->service->shareBook($bookId, $ownerId, $guestId);
+            
+            if (!$shared) {
+                $this->error('Book not found', 404);
+                return;
+            }
+            
+            $this->success(['message' => "Access granted to user $guestId"]);
+            
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode() ?: 400;
+            $this->error($e->getMessage(), $statusCode);
+        }
+    }
+
+    public function shared(): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+            
+            $books = $this->service->getSharedBooks($userId);
+            
+            $this->success(['books' => $books]);
             
         } catch (\Exception $e) {
             $this->error($e->getMessage(), $e->getCode() ?: 400);

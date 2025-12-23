@@ -36,6 +36,11 @@ class Router
             return;
         }
 
+        if ($method === 'GET' && $uri === '/users') {
+            (new \App\Controllers\UserController())->index();
+            return;
+        }
+
         if ($method === 'POST' && $uri === '/books') {
             $controller = new \App\Controllers\BookController();
             $data = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -68,6 +73,17 @@ class Router
 
         if ($method === 'DELETE' && preg_match('#^/books/(\d+)$#', $uri, $matches)) {
             (new \App\Controllers\BookController())->destroy((int)$matches[1]);
+            return;
+        }
+
+        if ($method === 'POST' && preg_match('#^/books/(\d+)/share$#', $uri, $matches)) {
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+            (new \App\Controllers\BookController())->share((int)$matches[1], $data);
+            return;
+        }
+
+        if ($method === 'GET' && $uri === '/books/shared') {
+            (new \App\Controllers\BookController())->shared();
             return;
         }
 

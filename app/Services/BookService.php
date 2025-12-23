@@ -48,17 +48,19 @@ class BookService
 
     public function getBookById(int $bookId, int $userId): ?array
     {
+        // Проверка доступа
+        if (!$this->hasAccessToBook($bookId, $userId)) {
+            return null;
+        }
+        
         $stmt = $this->db->prepare("
             SELECT id, user_id, title, content, created_at, updated_at 
             FROM books 
-            WHERE id = :id AND user_id = :user_id AND deleted_at IS NULL
+            WHERE id = :id 
+            AND deleted_at IS NULL
         ");
         
-        $stmt->execute([
-            'id' => $bookId,
-            'user_id' => $userId
-        ]);
-        
+        $stmt->execute(['id' => $bookId]);
         $book = $stmt->fetch(PDO::FETCH_ASSOC);
         
         return $book ?: null;
@@ -134,5 +136,120 @@ class BookService
         ]);
         
         return $stmt->rowCount() > 0;
+    }
+
+    public function shareBook(int $bookId, int $ownerId, int $guestId): bool
+    {
+        // 1. Проверить, что книга существует и принадлежит owner
+        if (!$this->isOwner($bookId, $ownerId)) {
+            return false;
+        }
+
+        
+        // 2. Проверить, что guest существует
+        $userService = new UserService();
+        $guest = $userService->getUserById($guestId);
+        if (!$guest) {
+            throw new \Exception('User not found', 404);
+        }
+        
+        // 3. Проверить, что не пытаемся поделиться с собой
+        if ($ownerId === $guestId) {
+            throw new \Exception('Cannot share with yourself', 400);
+        }
+        
+        // 4. Проверить, что доступ еще не выдан
+        $stmt = $this->db->prepare("
+            SELECT id FROM shared_access 
+            WHERE owner_id = :owner_id AND guest_id = :guest_id
+        ");
+        $stmt->execute([
+            'owner_id' => $ownerId,
+            'guest_id' => $guestId
+        ]);
+        
+        if ($stmt->fetch()) {
+            throw new \Exception('Access already granted', 409);
+        }
+        
+        // 5. Выдать доступ
+        $stmt = $this->db->prepare("
+            INSERT INTO shared_access (owner_id, guest_id) 
+            VALUES (:owner_id, :guest_id)
+        ");
+        
+        return $stmt->execute([
+            'owner_id' => $ownerId,
+            'guest_id' => $guestId
+        ]);
+    }
+
+    public function getSharedBooks(int $guestId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                b.id,
+                b.user_id as owner_id,
+                u.login as owner_login,
+                b.title,
+                b.content,
+                b.created_at,
+                b.updated_at,
+                sa.created_at as shared_at
+            FROM books b
+            JOIN shared_access sa ON b.user_id = sa.owner_id
+            JOIN users u ON b.user_id = u.id
+            WHERE sa.guest_id = :guest_id 
+            AND b.deleted_at IS NULL
+            ORDER BY sa.created_at DESC
+        ");
+        
+        $stmt->execute(['guest_id' => $guestId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function hasAccessToBook(int $bookId, int $userId): bool
+    {
+        // Проверить, своя ли книга
+        $stmt = $this->db->prepare("
+            SELECT id FROM books 
+            WHERE id = :book_id 
+            AND user_id = :user_id 
+            AND deleted_at IS NULL
+        ");
+        $stmt->execute(['book_id' => $bookId, 'user_id' => $userId]);
+        
+        if ($stmt->fetch()) {
+            return true; // Своя книга
+        }
+        
+        // Проверить, есть ли доступ через shared_access
+        $stmt = $this->db->prepare("
+            SELECT sa.id 
+            FROM shared_access sa
+            JOIN books b ON b.user_id = sa.owner_id
+            WHERE b.id = :book_id 
+            AND sa.guest_id = :user_id
+            AND b.deleted_at IS NULL
+        ");
+        $stmt->execute(['book_id' => $bookId, 'user_id' => $userId]);
+        
+        return (bool) $stmt->fetch();
+    }
+
+    private function isOwner(int $bookId, int $userId): bool
+    {
+        $stmt = $this->db->prepare("
+            SELECT id FROM books
+            WHERE id = :book_id
+            AND user_id = :user_id
+            AND deleted_at IS NULL
+        ");
+        $stmt->execute([
+            'book_id' => $bookId,
+            'user_id' => $userId
+        ]);
+
+        return (bool)$stmt->fetch();
     }
 }
