@@ -57,7 +57,6 @@ class BookService
             SELECT id, user_id, title, content, created_at, updated_at 
             FROM books 
             WHERE id = :id 
-            AND deleted_at IS NULL
         ");
         
         $stmt->execute(['id' => $bookId]);
@@ -237,7 +236,7 @@ class BookService
         return (bool) $stmt->fetch();
     }
 
-    private function isOwner(int $bookId, int $userId): bool
+    protected function isOwner(int $bookId, int $userId): bool
     {
         $stmt = $this->db->prepare("
             SELECT id FROM books
@@ -251,5 +250,24 @@ class BookService
         ]);
 
         return (bool)$stmt->fetch();
+    }
+
+    public function restoreBook(int $bookId, int $userId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE books
+            SET deleted_at = NULL,
+                updated_at = NOW()
+            WHERE id = :id
+            AND user_id = :user_id
+            AND deleted_at IS NOT NULL
+        ");
+
+        $stmt->execute([
+            'id' => $bookId,
+            'user_id' => $userId
+        ]);
+
+        return $stmt->rowCount() > 0;
     }
 }

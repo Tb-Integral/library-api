@@ -126,6 +126,25 @@ class BookController extends Controller
         }
     }
 
+    public function restore(int $id): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+
+            $restored = $this->service->restoreBook($id, $userId);
+
+            if (!$restored) {
+                $this->error('Book not found or not deleted', 404);
+                return;
+            }
+
+            $this->success(['message' => 'Book restored']);
+
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function share(int $bookId, array $data): void
     {
         try {

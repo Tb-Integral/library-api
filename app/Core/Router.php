@@ -48,17 +48,22 @@ class Router
             return;
         }
 
+        if ($method === 'GET' && $uri === '/books') {
+            $controller = new \App\Controllers\BookController();
+            $controller->index();
+            return;
+        }
+
+        if ($method === 'GET' && $uri === '/books/shared') {
+            (new \App\Controllers\BookController())->shared();
+            return;
+        }
+
         if ($method === 'GET' && preg_match('#^/books/(\d+)$#', $uri, $matches)) {
             (new \App\Controllers\BookController())->show((int)$matches[1]);
             return;
         }
 
-        if ($method === 'GET' && $uri === '/books') {
-            $controller = new \App\Controllers\BookController();
-            $controller->index();
-            return;
-        }     
-        
         if ($method === 'PUT' && preg_match('#^/books/(\d+)$#', $uri, $matches)) {
             $data = json_decode(file_get_contents('php://input'), true) ?? [];
             (new \App\Controllers\BookController())->update((int)$matches[1], $data);
@@ -76,14 +81,15 @@ class Router
             return;
         }
 
+        // 4. Маршруты /books/{id}/действие
         if ($method === 'POST' && preg_match('#^/books/(\d+)/share$#', $uri, $matches)) {
             $data = json_decode(file_get_contents('php://input'), true) ?? [];
             (new \App\Controllers\BookController())->share((int)$matches[1], $data);
             return;
         }
 
-        if ($method === 'GET' && $uri === '/books/shared') {
-            (new \App\Controllers\BookController())->shared();
+        if ($method === 'POST' && preg_match('#^/books/(\d+)/restore$#', $uri, $matches)) {
+            (new \App\Controllers\BookController())->restore((int)$matches[1]);
             return;
         }
 
