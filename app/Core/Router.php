@@ -38,8 +38,8 @@ class Router
 
         if ($method === 'GET' && $uri === '/me') {
             try {
-                $token = AuthMiddleware::handle();
-                Response::json(['token' => $token]);
+                $userId = AuthMiddleware::handle();
+                Response::json(['user_id' => $userId]);
             } catch (\Exception $e) {
                 Response::error($e->getMessage(), $e->getCode() ?: 401);
             }
