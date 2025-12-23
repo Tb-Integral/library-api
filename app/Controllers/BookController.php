@@ -99,4 +99,23 @@ class BookController extends Controller
             $this->error($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function destroy(int $id): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+            
+            $deleted = $this->service->deleteBook($id, $userId);
+            
+            if (!$deleted) {
+                $this->error('Book not found', 404);
+                return;
+            }
+            
+            $this->success(['message' => 'Book deleted']);
+            
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

@@ -66,6 +66,11 @@ class Router
             return;
         }
 
+        if ($method === 'DELETE' && preg_match('#^/books/(\d+)$#', $uri, $matches)) {
+            (new \App\Controllers\BookController())->destroy((int)$matches[1]);
+            return;
+        }
+
         Response::error('Endpoint not found', 404);
     }
 }

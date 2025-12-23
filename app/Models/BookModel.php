@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-class bookModel
+class BookModel
 {
     public function update(int $id, string $title, ?string $content): void
     {

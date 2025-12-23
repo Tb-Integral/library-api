@@ -103,7 +103,9 @@ class BookService
             SET title = :title, 
                 content = :content, 
                 updated_at = NOW()
-            WHERE id = :id AND user_id = :user_id
+            WHERE id = :id 
+            AND user_id = :user_id 
+            AND deleted_at IS NULL 
         ");
         
         $stmt->execute([
@@ -114,5 +116,23 @@ class BookService
         ]);
         
         return $this->getBookById($bookId, $userId);
+    }
+
+    public function deleteBook(int $bookId, int $userId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE books 
+            SET deleted_at = NOW() 
+            WHERE id = :id 
+            AND user_id = :user_id 
+            AND deleted_at IS NULL
+        ");
+        
+        $stmt->execute([
+            'id' => $bookId,
+            'user_id' => $userId
+        ]);
+        
+        return $stmt->rowCount() > 0;
     }
 }
