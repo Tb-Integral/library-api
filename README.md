@@ -16,10 +16,11 @@ REST API for a mobile book library application.
 ---
 
 ## Features
-- User registration and authentication
+- User registration and authentication with password confirmation
 - JWT-protected endpoints
 - User list and library sharing
 - Book management (CRUD)
+- Book creation from text files (multipart/form-data)
 - Soft delete and restore books
 - Access to other users' libraries
 - External book search:
@@ -73,6 +74,7 @@ Header: Authorization: Bearer <token>
 3. Books
 - GET /books — list user books
 - POST /books — create book
+- POST /books/upload — create book from text file (multipart/form-data)
 - GET /books/{id} — get book by id
 - PUT /books/{id} — update book
 - DELETE /books/{id} — soft delete book
