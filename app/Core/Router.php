@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use App\Controllers\UserController;
+use App\Middleware\AuthMiddleware;
 
 class Router
 {
@@ -35,6 +36,15 @@ class Router
             return;
         }
 
+        if ($method === 'GET' && $uri === '/me') {
+            try {
+                $token = AuthMiddleware::handle();
+                Response::json(['token' => $token]);
+            } catch (\Exception $e) {
+                Response::error($e->getMessage(), $e->getCode() ?: 401);
+            }
+            return;
+        }
 
         Response::error('Endpoint not found', 404);
     }
