@@ -50,8 +50,16 @@ class ExternalBooksController extends Controller
                 return;
             }
 
-            if (!isset($data['content']) || empty(trim($data['content']))) {
-                $this->error('Content is required', 400);
+            $content = '';
+
+            if (isset($data['content']) && !empty(trim($data['content']))) {
+                $content = trim($data['content']);
+            } elseif (isset($data['description']) && !empty(trim($data['description']))) {
+                $content = trim($data['description']);
+            } elseif (isset($data['url']) && !empty(trim($data['url']))) {
+                $content = trim($data['url']);
+            } else {
+                $this->error('Content is required (provide content, description or url)', 400);
                 return;
             }
 
@@ -60,7 +68,7 @@ class ExternalBooksController extends Controller
 
             $book = $bookService->createBook($userId, [
                 'title' => trim($data['title']),
-                'content' => trim($data['content']),
+                'content' => $content, // Используем найденный content
             ]);
 
             // Если переданы source и external_id, сохраняем в external_books
