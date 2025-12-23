@@ -55,4 +55,48 @@ class BookController extends Controller
             $this->error($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function show(int $id): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+
+            $book = $this->service->getBookById($id, $userId);
+
+            if (!$book) {
+                $this->error('Book not found', 404);
+                return;
+            }
+
+            $this->success($book);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function update(int $id, array $data): void
+    {
+        try {
+            $userId = AuthMiddleware::handle();
+
+            if (
+                (!isset($data['title']) || trim($data['title']) === '') &&
+                (!isset($data['content']))
+            ) {
+                $this->error('Nothing to update', 400);
+                return;
+            }
+
+            $book = $this->service->updateBook($id, $userId, $data);
+
+            if (!$book) {
+                $this->error('Book not found', 404);
+                return;
+            }
+
+            $this->success($book);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

@@ -77,4 +77,42 @@ class BookService
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function updateBook(int $bookId, int $userId, array $data): ?array
+    {
+
+        $book = $this->getBookById($bookId, $userId);
+        
+        if (!$book) {
+            return null;
+        }
+        
+        $title = isset($data['title']) ? trim($data['title']) : $book['title'];
+        $content = isset($data['content']) ? trim($data['content']) : $book['content'];
+        
+        if (empty($title)) {
+            throw new \Exception('Book title cannot be empty', 400);
+        }
+        
+        if (strlen($title) > 255) {
+            throw new \Exception('Title is too long (max 255 characters)', 400);
+        }
+        
+        $stmt = $this->db->prepare("
+            UPDATE books 
+            SET title = :title, 
+                content = :content, 
+                updated_at = NOW()
+            WHERE id = :id AND user_id = :user_id
+        ");
+        
+        $stmt->execute([
+            'id' => $bookId,
+            'user_id' => $userId,
+            'title' => $title,
+            'content' => $content
+        ]);
+        
+        return $this->getBookById($bookId, $userId);
+    }
 }
