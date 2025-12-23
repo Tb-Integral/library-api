@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -25,7 +27,7 @@ echo "Found " . count($migrationFiles) . " migration file(s)\n\n";
 
 foreach ($migrationFiles as $file) {
     echo "Running: " . basename($file) . "... ";
-    
+
     try {
         require_once $file;
         echo "✓ SUCCESS\n";

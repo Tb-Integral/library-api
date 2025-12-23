@@ -19,7 +19,7 @@ class BookModel
         $stmt->execute([
             'id' => $id,
             'title' => $title,
-            'content' => $content
+            'content' => $content,
         ]);
     }
 }

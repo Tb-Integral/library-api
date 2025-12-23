@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 echo "Creating tables...\n";
 
 // Получаем настройки из .env
@@ -17,15 +19,15 @@ try {
         $password,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
-    
+
     // Создаем базу данных если не существует
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` 
+    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname`
                 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     echo "Database '$dbname' ready.\n";
-    
+
     // Переключаемся на созданную базу
     $pdo->exec("USE `$dbname`");
-    
+
     // Таблица users
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS users (
@@ -36,7 +38,7 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     echo "Table 'users' created.\n";
-    
+
     // Таблица books
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS books (
@@ -53,7 +55,7 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     echo "Table 'books' created.\n";
-    
+
     // Таблица shared_access
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS shared_access (
@@ -69,7 +71,7 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     echo "Table 'shared_access' created.\n";
-    
+
     // Таблица external_books
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS external_books (
@@ -87,7 +89,7 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
     echo "Table 'external_books' created.\n";
-    
+
 } catch (PDOException $e) {
     throw new Exception("Migration failed: " . $e->getMessage());
 }

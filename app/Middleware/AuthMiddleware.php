@@ -14,8 +14,8 @@ class AuthMiddleware
     {
         $headers = getallheaders();
 
-        $authHeader =
-            $headers['Authorization']
+        $authHeader
+            = $headers['Authorization']
             ?? $headers['authorization']
             ?? $_SERVER['HTTP_AUTHORIZATION']
             ?? null;
@@ -42,4 +42,3 @@ class AuthMiddleware
         return (int) $decoded->sub;
     }
 }
-

@@ -31,8 +31,7 @@ class AuthController extends Controller
             );
 
             $this->success(['token' => $token]);
-        } 
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             $statusCode = is_int($e->getCode()) && $e->getCode() !== 0
                 ? $e->getCode()
                 : 500;

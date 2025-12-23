@@ -34,10 +34,10 @@ class UserService
         $stmt = $this->db->prepare("INSERT INTO users (login, password_hash) VALUES (:login, :password)");
         $stmt->execute([
             'login' => $login,
-            'password' => $passwordHash
+            'password' => $passwordHash,
         ]);
 
-        $userId = (int)$this->db->lastInsertId();
+        $userId = (int) $this->db->lastInsertId();
 
         // Генерация JWT
         return $this->generateToken($userId, $login);
@@ -53,7 +53,7 @@ class UserService
             throw new \Exception("Invalid credentials");
         }
 
-        return $this->generateToken((int)$user['id'], $login);
+        return $this->generateToken((int) $user['id'], $login);
     }
 
     private function generateToken(int $userId, string $login): string
@@ -62,7 +62,7 @@ class UserService
             'sub' => $userId,
             'login' => $login,
             'iat' => time(),
-            'exp' => time() + 3600 // 1 час
+            'exp' => time() + 3600, // 1 час
         ];
 
         $secret = $_ENV['JWT_SECRET'];
@@ -86,32 +86,32 @@ class UserService
     public function getAllUsersExcept(int $excludeUserId, int $limit = 50, int $offset = 0): array
     {
         $stmt = $this->db->prepare("
-            SELECT id, login, created_at 
-            FROM users 
-            WHERE id != :exclude_id 
-            ORDER BY login 
+            SELECT id, login, created_at
+            FROM users
+            WHERE id != :exclude_id
+            ORDER BY login
             LIMIT :limit OFFSET :offset
         ");
-        
+
         $stmt->bindValue(':exclude_id', $excludeUserId, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-        
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getUserById(int $userId): ?array
     {
         $stmt = $this->db->prepare("
-            SELECT id, login, created_at 
-            FROM users 
+            SELECT id, login, created_at
+            FROM users
             WHERE id = :id
         ");
-        
+
         $stmt->execute(['id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         return $user ?: null;
     }
 }
