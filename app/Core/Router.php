@@ -81,7 +81,6 @@ class Router
             return;
         }
 
-        // 4. Маршруты /books/{id}/действие
         if ($method === 'POST' && preg_match('#^/books/(\d+)/share$#', $uri, $matches)) {
             $data = json_decode(file_get_contents('php://input'), true) ?? [];
             (new \App\Controllers\BookController())->share((int)$matches[1], $data);
@@ -90,6 +89,19 @@ class Router
 
         if ($method === 'POST' && preg_match('#^/books/(\d+)/restore$#', $uri, $matches)) {
             (new \App\Controllers\BookController())->restore((int)$matches[1]);
+            return;
+        }
+
+        // Внешний поиск книг
+        if ($method === 'GET' && $uri === '/external/books/search') {
+            (new \App\Controllers\ExternalBooksController())->search();
+            return;
+        }
+
+        // Сохранение найденной книги
+        if ($method === 'POST' && $uri === '/external/books/save') {
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+            (new \App\Controllers\ExternalBooksController())->save($data);
             return;
         }
 
