@@ -19,15 +19,15 @@ class Router
             return;
         }
 
-        if ($method === 'GET' && $uri === '/users') {
-            $controller = new \App\Controllers\UserController();
-
-        }
-
         if ($method === 'POST' && $uri === '/register') {
             $controller = new \App\Controllers\UserController();
             $data = json_decode(file_get_contents('php://input'), true);
             $controller->register($data);
+            return;
+        }
+        
+        if ($method === 'GET' && $uri === '/users') {
+            $controller = new \App\Controllers\UserController();
             return;
         }
 
@@ -38,6 +38,19 @@ class Router
 
         if ($method === 'GET' && $uri === '/me') {
             (new \App\Controllers\UserController())->me();
+            return;
+        }
+
+        if ($method === 'POST' && $uri === '/books') {
+            $controller = new \App\Controllers\BookController();
+            $data = json_decode(file_get_contents('php://input'), true);
+            $controller->store($data);
+            return;
+        }
+
+        if ($method === 'GET' && $uri === '/books') {
+            $controller = new \App\Controllers\BookController();
+            $controller->index();
             return;
         }
 

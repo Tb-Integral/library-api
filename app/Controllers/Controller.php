@@ -13,7 +13,7 @@ class Controller
         Response::json($data, $statusCode);
     }
 
-        protected function json(array $data, int $status = 200): void
+    protected function json(array $data, int $status = 200): void
     {
         Response::json($data, $status);
     }
