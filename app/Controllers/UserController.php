@@ -6,14 +6,18 @@ namespace App\Controllers;
 
 use App\Services\UserService;
 use App\Middleware\AuthMiddleware;
+use App\Validation\Validator;
+use App\Validation\UserValidation;
 
 class UserController extends Controller
 {
     private UserService $service;
+    private Validator $validator;
 
     public function __construct()
     {
         $this->service = new UserService();
+        $this->validator = new Validator();
     }
 
     public function ping(): void
@@ -23,8 +27,9 @@ class UserController extends Controller
 
     public function register(array $data): void
     {
-        if (!isset($data['login'], $data['password'])) {
-            $this->error('Login and password required', 400);
+        // Валидация
+        if (!$this->validator->validate($data, UserValidation::registerRules())) {
+            $this->error($this->validator->getFirstError(), 422);
             return;
         }
 

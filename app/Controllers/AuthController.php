@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Services\AuthService;
+use App\Services\UserService;
 
 class AuthController extends Controller
 {
-    private AuthService $service;
+    private UserService $service;
 
     public function __construct()
     {
-        $this->service = new AuthService();
+        $this->service = new UserService();
     }
 
     public function login(): void
@@ -34,10 +34,9 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             $statusCode = is_int($e->getCode()) && $e->getCode() !== 0
                 ? $e->getCode()
-                : 500;
+                : 401;
 
             $this->error($e->getMessage(), $statusCode);
         }
     }
-
 }
